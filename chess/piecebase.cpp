@@ -35,27 +35,18 @@ bool pieceBase::canMoveHorizontalVertical(int oldIndices[2], int newindices[2], 
 }
 
 void pieceBase::performMovement(int oldIndices[2], int newIndices[2], QString playingField[8][8]) {
-    qDebug() << "performMovement";
     playingField[newIndices[0]][newIndices[1]] = playingField[oldIndices[0]][oldIndices[1]];
     playingField[oldIndices[0]][oldIndices[1]] = "xx";
 }
 
-bool pieceBase::isInCheck(int oldIndices[2], int newindices[2], QChar color,QString playingField[8][8]) {
+bool pieceBase::isInCheck(QChar color,QString playingField[8][8]) {
 
     // Check what the king "sees" verticaly/horitontaly/diagonally and from a horse perspective...
     int kingPosition[2];
-    QString tempPlayingField[8][8];
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            tempPlayingField[i][j] = playingField[i][j];
-        }
-    }
-    // Update tempPlayingField with new suggested position to evaluate
-    performMovement(oldIndices, newindices, tempPlayingField);
     // Find kings position
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            if (tempPlayingField[i][j][1] == 'k' && tempPlayingField[i][j][0] == color) {
+            if (playingField[i][j][1] == 'k' && playingField[i][j][0] == color) {
                 kingPosition[0] = i;
                 kingPosition[1] = j;
             }
@@ -64,14 +55,15 @@ bool pieceBase::isInCheck(int oldIndices[2], int newindices[2], QChar color,QStr
 
    // Horizontal check right
     for (int i = 1; i < 8-kingPosition[1]; i++) {
-        if (tempPlayingField[kingPosition[0]][kingPosition[1]+i] == "xx") {
+        if (playingField[kingPosition[0]][kingPosition[1]+i] == "xx"
+                || playingField[kingPosition[0]][kingPosition[1]+i][1] == 'u') {
             continue;
         } else {
             if (verbose()) {
-                qDebug() << "Horizontal right. piece found:" << tempPlayingField[kingPosition[0]][kingPosition[1]+i];
+                qDebug() << "Horizontal right. piece found:" << playingField[kingPosition[0]][kingPosition[1]+i];
             }
-            if ((tempPlayingField[kingPosition[0]][kingPosition[1]+i][1] == 'q' || tempPlayingField[kingPosition[0]][kingPosition[1]+i][1] == 'r')
-                    && tempPlayingField[kingPosition[0]][kingPosition[1]+i][0] != color) {
+            if ((playingField[kingPosition[0]][kingPosition[1]+i][1] == 'q' || playingField[kingPosition[0]][kingPosition[1]+i][1] == 'r')
+                    && playingField[kingPosition[0]][kingPosition[1]+i][0] != color) {
                 return true;
             }
             // Found a piece in direction that won't check me
@@ -80,14 +72,15 @@ bool pieceBase::isInCheck(int oldIndices[2], int newindices[2], QChar color,QStr
     }
     // Horizontal check left
     for (int i = 1; i < kingPosition[1]+1; i++) {
-        if (tempPlayingField[kingPosition[0]][kingPosition[1]-i] == "xx") {
+        if (playingField[kingPosition[0]][kingPosition[1]-i] == "xx"
+                || playingField[kingPosition[0]][kingPosition[1]+i][1] == 'u') {
             continue;
         } else {
             if (verbose()) {
-                qDebug() << "Horizontal left. piece found:" << tempPlayingField[kingPosition[0]][kingPosition[1]-i];
+                qDebug() << "Horizontal left. piece found:" << playingField[kingPosition[0]][kingPosition[1]-i];
             }
-            if ((tempPlayingField[kingPosition[0]][kingPosition[1]-i][1] == 'q' || tempPlayingField[kingPosition[0]][kingPosition[1]-i][1] == 'r')
-                    && tempPlayingField[kingPosition[0]][kingPosition[1]-i][0] != color) {
+            if ((playingField[kingPosition[0]][kingPosition[1]-i][1] == 'q' || playingField[kingPosition[0]][kingPosition[1]-i][1] == 'r')
+                    && playingField[kingPosition[0]][kingPosition[1]-i][0] != color) {
                 return true;
             }
             // Found a piece in direction that won't check me
@@ -96,14 +89,15 @@ bool pieceBase::isInCheck(int oldIndices[2], int newindices[2], QChar color,QStr
     }
     // Vertical check up
     for (int i = 1; i < 8-kingPosition[0]; i++) {
-        if (tempPlayingField[kingPosition[0]+i][kingPosition[1]] == "xx") {
+        if (playingField[kingPosition[0]+i][kingPosition[1]] == "xx"
+                || playingField[kingPosition[0]][kingPosition[1]+i][1] == 'u') {
             continue;
         } else {
             if (verbose()) {
-                qDebug() << "Vertical up. piece found:" << tempPlayingField[kingPosition[0]+i][kingPosition[1]];
+                qDebug() << "Vertical up. piece found:" << playingField[kingPosition[0]+i][kingPosition[1]];
             }
-            if ((tempPlayingField[kingPosition[0]+i][kingPosition[1]][1] == 'q' || tempPlayingField[kingPosition[0]+i][kingPosition[1]][1] == 'r')
-                    && tempPlayingField[kingPosition[0]+i][kingPosition[1]][0] != color) {
+            if ((playingField[kingPosition[0]+i][kingPosition[1]][1] == 'q' || playingField[kingPosition[0]+i][kingPosition[1]][1] == 'r')
+                    && playingField[kingPosition[0]+i][kingPosition[1]][0] != color) {
                 return true;
             }
             // Found a piece in direction that won't check me
@@ -112,14 +106,15 @@ bool pieceBase::isInCheck(int oldIndices[2], int newindices[2], QChar color,QStr
     }
     // Vertical check down
     for (int i = 1; i < kingPosition[0]+1; i++) {
-        if (tempPlayingField[kingPosition[0]-i][kingPosition[1]] == "xx") {
+        if (playingField[kingPosition[0]-i][kingPosition[1]] == "xx"
+                || playingField[kingPosition[0]][kingPosition[1]+i][1] == 'u') {
             continue;
         } else {
             if (verbose()) {
-                qDebug() << "Vertical down. piece found:" << tempPlayingField[kingPosition[0]-i][kingPosition[1]];
+                qDebug() << "Vertical down. piece found:" << playingField[kingPosition[0]-i][kingPosition[1]];
             }
-            if ((tempPlayingField[kingPosition[0]-i][kingPosition[1]][1] == 'q' || tempPlayingField[kingPosition[0]-i][kingPosition[1]][1] == 'r')
-                    && tempPlayingField[kingPosition[0]-i][kingPosition[1]][0] != color) {
+            if ((playingField[kingPosition[0]-i][kingPosition[1]][1] == 'q' || playingField[kingPosition[0]-i][kingPosition[1]][1] == 'r')
+                    && playingField[kingPosition[0]-i][kingPosition[1]][0] != color) {
                 return true;
             }
             // Found a piece in direction that won't check me
@@ -129,15 +124,16 @@ bool pieceBase::isInCheck(int oldIndices[2], int newindices[2], QChar color,QStr
 
     // Diagonal check up right
     for (int i = 1; i < std::min(8-kingPosition[0],8-kingPosition[1]); i++) {
-        if (tempPlayingField[kingPosition[0]+i][kingPosition[1]+i] == "xx") {
+        if (playingField[kingPosition[0]+i][kingPosition[1]+i] == "xx"
+                || playingField[kingPosition[0]][kingPosition[1]+i][1] == 'u') {
             continue;
         } else {
             if (verbose()) {
-                qDebug() << "Diagonal up right. piece found:" << tempPlayingField[kingPosition[0]+i][kingPosition[1]+i];
+                qDebug() << "Diagonal up right. piece found:" << playingField[kingPosition[0]+i][kingPosition[1]+i];
             }
-            if ((tempPlayingField[kingPosition[0]+i][kingPosition[1]+i][1] == 'q'
-                 || tempPlayingField[kingPosition[0]+i][kingPosition[1]+i][1] == 'b')
-                    && tempPlayingField[kingPosition[0]+i][kingPosition[1]+i][0] != color) {
+            if ((playingField[kingPosition[0]+i][kingPosition[1]+i][1] == 'q'
+                 || playingField[kingPosition[0]+i][kingPosition[1]+i][1] == 'b')
+                    && playingField[kingPosition[0]+i][kingPosition[1]+i][0] != color) {
                 return true;
             }
             // Found a piece in direction that won't check me
@@ -146,15 +142,16 @@ bool pieceBase::isInCheck(int oldIndices[2], int newindices[2], QChar color,QStr
     }
     // Diagonal check down left
     for (int i = 1; i < std::min(kingPosition[0]+1,kingPosition[1]+1); i++) {
-        if (tempPlayingField[kingPosition[0]-i][kingPosition[1]-i] == "xx") {
+        if (playingField[kingPosition[0]-i][kingPosition[1]-i] == "xx"
+                || playingField[kingPosition[0]][kingPosition[1]+i][1] == 'u') {
             continue;
         } else {
             if (verbose()) {
-                qDebug() << "Diagonal down left. piece found:" << tempPlayingField[kingPosition[0]-i][kingPosition[1]-i];
+                qDebug() << "Diagonal down left. piece found:" << playingField[kingPosition[0]-i][kingPosition[1]-i];
             }
-            if ((tempPlayingField[kingPosition[0]-i][kingPosition[1]-i][1] == 'q'
-                 || tempPlayingField[kingPosition[0]-i][kingPosition[1]-i][1] == 'b')
-                    && tempPlayingField[kingPosition[0]-i][kingPosition[1]-i][0] != color) {
+            if ((playingField[kingPosition[0]-i][kingPosition[1]-i][1] == 'q'
+                 || playingField[kingPosition[0]-i][kingPosition[1]-i][1] == 'b')
+                    && playingField[kingPosition[0]-i][kingPosition[1]-i][0] != color) {
                 return true;
             }
             // Found a piece in direction that won't check me
@@ -163,15 +160,16 @@ bool pieceBase::isInCheck(int oldIndices[2], int newindices[2], QChar color,QStr
     }
     // Diagonal check down right
     for (int i = 1; i < std::min(kingPosition[0]+1,8-kingPosition[1]); i++) {
-        if (tempPlayingField[kingPosition[0]-i][kingPosition[1]+i] == "xx") {
+        if (playingField[kingPosition[0]-i][kingPosition[1]+i] == "xx"
+                || playingField[kingPosition[0]][kingPosition[1]+i][1] == 'u') {
             continue;
         } else {
             if (verbose()) {
-                qDebug() << "Diagonal down right. piece found:" << tempPlayingField[kingPosition[0]-i][kingPosition[1]+i];
+                qDebug() << "Diagonal down right. piece found:" << playingField[kingPosition[0]-i][kingPosition[1]+i];
             }
-            if ((tempPlayingField[kingPosition[0]-i][kingPosition[1]+i][1] == 'q'
-                 || tempPlayingField[kingPosition[0]-i][kingPosition[1]+i][1] == 'b')
-                    && tempPlayingField[kingPosition[0]-i][kingPosition[1]+i][0] != color) {
+            if ((playingField[kingPosition[0]-i][kingPosition[1]+i][1] == 'q'
+                 || playingField[kingPosition[0]-i][kingPosition[1]+i][1] == 'b')
+                    && playingField[kingPosition[0]-i][kingPosition[1]+i][0] != color) {
                 return true;
             }
             // Found a piece in direction that won't check me
@@ -180,15 +178,16 @@ bool pieceBase::isInCheck(int oldIndices[2], int newindices[2], QChar color,QStr
     }
     // Diagonal check up left
     for (int i = 1; i < std::min(8-kingPosition[0],kingPosition[1]+1); i++) {
-        if (tempPlayingField[kingPosition[0]+i][kingPosition[1]-i] == "xx") {
+        if (playingField[kingPosition[0]+i][kingPosition[1]-i] == "xx"
+                || playingField[kingPosition[0]][kingPosition[1]+i][1] == 'u') {
             continue;
         } else {
             if (verbose()) {
-                qDebug() << "Diagonal up left. piece found:" << tempPlayingField[kingPosition[0]+i][kingPosition[1]-i];
+                qDebug() << "Diagonal up left. piece found:" << playingField[kingPosition[0]+i][kingPosition[1]-i];
             }
-            if ((tempPlayingField[kingPosition[0]+i][kingPosition[1]-i][1] == 'q'
-                 || tempPlayingField[kingPosition[0]+i][kingPosition[1]-i][1] == 'b')
-                    && tempPlayingField[kingPosition[0]+i][kingPosition[1]-i][0] != color) {
+            if ((playingField[kingPosition[0]+i][kingPosition[1]-i][1] == 'q'
+                 || playingField[kingPosition[0]+i][kingPosition[1]-i][1] == 'b')
+                    && playingField[kingPosition[0]+i][kingPosition[1]-i][0] != color) {
                 return true;
             }
             // Found a piece in direction that won't check me
@@ -228,28 +227,52 @@ bool pieceBase::isInCheck(int oldIndices[2], int newindices[2], QChar color,QStr
             // invalid index dont check it
             continue;
         }
-        if (tempPlayingField[horsePosCheck[i][0]][horsePosCheck[i][1]][1] == 'h'
-                && tempPlayingField[horsePosCheck[i][0]][horsePosCheck[i][1]][0] != color) {
+        if (playingField[horsePosCheck[i][0]][horsePosCheck[i][1]][1] == 'h'
+                && playingField[horsePosCheck[i][0]][horsePosCheck[i][1]][0] != color) {
             return true;
         }
     }
 
     // Check pawns
     if (color == 'w') {
-        if ((tempPlayingField[kingPosition[0]+1][kingPosition[1]+1][1] == 'p'
-             && tempPlayingField[kingPosition[0]+1][kingPosition[1]+1][0] != color)
-                || (tempPlayingField[kingPosition[0]+1][kingPosition[1]-1][1] == 'p'
-                && tempPlayingField[kingPosition[0]+1][kingPosition[1]-1][0] != color)) {
+        if ((playingField[kingPosition[0]+1][kingPosition[1]+1][1] == 'p'
+             && playingField[kingPosition[0]+1][kingPosition[1]+1][0] != color)
+                || (playingField[kingPosition[0]+1][kingPosition[1]-1][1] == 'p'
+                && playingField[kingPosition[0]+1][kingPosition[1]-1][0] != color)) {
             return true;
         }
     } else {
-        if ((tempPlayingField[kingPosition[0]-1][kingPosition[1]+1][1] == 'p'
-             && tempPlayingField[kingPosition[0]-1][kingPosition[1]+1][0] != color)
-                || (tempPlayingField[kingPosition[0]-1][kingPosition[1]-1][1] == 'p'
-                && tempPlayingField[kingPosition[0]-1][kingPosition[1]-1][0] != color)) {
+        if ((playingField[kingPosition[0]-1][kingPosition[1]+1][1] == 'p'
+             && playingField[kingPosition[0]-1][kingPosition[1]+1][0] != color)
+                || (playingField[kingPosition[0]-1][kingPosition[1]-1][1] == 'p'
+                && playingField[kingPosition[0]-1][kingPosition[1]-1][0] != color)) {
             return true;
         }
     }
 
     return false;
+}
+
+void pieceBase::resetUnPassant(QChar color, QString playingField[8][8]) {
+    if (color == 'w') {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (playingField[i][j] == "wu") {
+                    playingField[i][j] = "xx";
+                    // can only exist maximum one wu each turn
+                    break;
+                }
+            }
+        }
+    } else {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (playingField[i][j] == "bu") {
+                    playingField[i][j] = "xx";
+                    // can only exist maximum one wu each turn
+                    break;
+                }
+            }
+        }
+    }
 }

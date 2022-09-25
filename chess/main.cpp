@@ -17,20 +17,10 @@ int main(int argc, char *argv[])
     printField(playingField);
     Pawn mPawn;
 
-//    qDebug() << mPawn.movement("B2","B4",playingField);
-//    printField(playingField);
 //    qDebug() << mPawn.movement("B7","B5",playingField);
-//    printField(playingField);
-//    qDebug() << mPawn.movement("B5","B6",playingField);
 //    printField(playingField);
 //    qDebug() << mPawn.movement("B5","B4",playingField);
 //    printField(playingField);
-//    qDebug() << mPawn.movement("C2","C4",playingField);
-//    printField(playingField);
-//    qDebug() << mPawn.movement("B5","C4",playingField);
-//    printField(playingField);
-
-
 
     return a.exec();
 }

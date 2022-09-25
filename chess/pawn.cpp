@@ -15,19 +15,21 @@ bool Pawn::movement(QString oldPosition, QString newPosition, QString playingFie
     notationToIndex(oldPosition,oldIndices);
     QChar color = playingField[oldIndices[0]][oldIndices[1]][0];
 
-    if (playingField[oldIndices[0]][oldIndices[1]] == "xx") {
+    QString tempPlayingField[8][8];
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            tempPlayingField[i][j] = playingField[i][j];
+        }
+    }
+    resetUnPassant(color, tempPlayingField);
+
+    if (tempPlayingField[oldIndices[0]][oldIndices[1]] == "xx") {
         // No piece to move
         return false;
     }
 
-    if (isInCheck(oldIndices,newIndices,color,playingField)) {
-        qDebug() << "check";
-        return false;
-    }
-    qDebug() << "not check";
-
     // Check if field is occupied by own pieces, if so return false
-    if (playingField[newIndices[0]][newIndices[1]][0] == color) {
+    if (tempPlayingField[newIndices[0]][newIndices[1]][0] == color) {
         return false;
     }
 
@@ -39,21 +41,37 @@ bool Pawn::movement(QString oldPosition, QString newPosition, QString playingFie
         if (oldIndices[0] == 1) {
             // Is move valid for a pawn allowed to take two steps
             if(oldIndices[1] == newIndices[1] && newIndices[0] - oldIndices[0] <= 2 && newIndices[0] - oldIndices[0] > 0) {
-                if (canMoveHorizontalVertical(oldIndices, newIndices, playingField)
-                        && playingField[newIndices[0]][newIndices[1]] == "xx") {
-                    performMovement(oldIndices, newIndices, playingField);
+                if (canMoveHorizontalVertical(oldIndices, newIndices, tempPlayingField)
+                        && tempPlayingField[newIndices[0]][newIndices[1]] == "xx") {
+                    performMovement(oldIndices, newIndices, tempPlayingField);
                     // if took two steps leave after "wu" behind new position for opponents pawn to take which will capture this pawn
                     if (newIndices[0] - oldIndices[0] == 2) {
-                        playingField[oldIndices[0]+1][oldIndices[1]] = "wu";
+                        tempPlayingField[oldIndices[0]+1][oldIndices[1]] = "wu";
+                    }
+                    if (isInCheck(color, tempPlayingField)) {
+                        return false;
+                    }
+                    for (int i = 0; i < 8; i++) {
+                        for (int j = 0; j < 8; j++) {
+                            playingField[i][j] = tempPlayingField[i][j];
+                        }
                     }
                     return true;
                 }
             }
         } else {// Only allowed to move one step
             if(oldIndices[1] == newIndices[1] && newIndices[0] - oldIndices[0] <= 1 && newIndices[0] - oldIndices[0] > 0) {
-                if (canMoveHorizontalVertical(oldIndices, newIndices, playingField)
-                        && playingField[newIndices[0]][newIndices[1]] == "xx") {
-                    performMovement(oldIndices, newIndices, playingField);
+                if (canMoveHorizontalVertical(oldIndices, newIndices, tempPlayingField)
+                        && tempPlayingField[newIndices[0]][newIndices[1]] == "xx") {
+                    performMovement(oldIndices, newIndices, tempPlayingField);
+                    if (isInCheck(color, tempPlayingField)) {
+                        return false;
+                    }
+                    for (int i = 0; i < 8; i++) {
+                        for (int j = 0; j < 8; j++) {
+                            playingField[i][j] = tempPlayingField[i][j];
+                        }
+                    }
                     return true;
                 }
             }
@@ -61,8 +79,19 @@ bool Pawn::movement(QString oldPosition, QString newPosition, QString playingFie
 
         // Check if trying to take diagonally as pawn and if there is a piece there to take
         if (abs(oldIndices[1]-newIndices[1]) == 1 && (oldIndices[0]+1) == newIndices[0]
-                && playingField[newIndices[0]][newIndices[1]][0] != color) {
-            performMovement(oldIndices, newIndices, playingField);
+                && tempPlayingField[newIndices[0]][newIndices[1]][0] != color) {
+            if (tempPlayingField[newIndices[0]][newIndices[1]] == "bu") {
+                tempPlayingField[newIndices[0]-1][newIndices[1]] = "xx";
+            }
+            performMovement(oldIndices, newIndices, tempPlayingField);
+            if (isInCheck(color, tempPlayingField)) {
+                return false;
+            }
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    playingField[i][j] = tempPlayingField[i][j];
+                }
+            }
             return true;
         }
     } else { // -----------------BLACK MOVEMENT-----------------
@@ -71,32 +100,57 @@ bool Pawn::movement(QString oldPosition, QString newPosition, QString playingFie
         if (oldIndices[0] == 6) {
             // Is move valid for a pawn allowed to take two steps
             if(oldIndices[1] == newIndices[1] && oldIndices[0] - newIndices[0] <= 2 && oldIndices[0] - newIndices[0] > 0) {
-                if (canMoveHorizontalVertical(oldIndices, newIndices, playingField)
-                        && playingField[newIndices[0]][newIndices[1]] == "xx") {
-                    performMovement(oldIndices, newIndices, playingField);
-                    // if took two steps leave after "wu" behind new position for opponents pawn to take which will capture this pawn
+                if (canMoveHorizontalVertical(oldIndices, newIndices, tempPlayingField)
+                        && tempPlayingField[newIndices[0]][newIndices[1]] == "xx") {
+                    performMovement(oldIndices, newIndices, tempPlayingField);
+                    // if took two steps leave after "bu" behind new position for opponents pawn to take which will capture this pawn
                     if (oldIndices[0] - newIndices[0] == 2) {
-                        playingField[oldIndices[0]-1][oldIndices[1]] = "bu";
+                        tempPlayingField[oldIndices[0]-1][oldIndices[1]] = "bu";
+                    }
+                    if (isInCheck(color, tempPlayingField)) {
+                        return false;
+                    }
+                    for (int i = 0; i < 8; i++) {
+                        for (int j = 0; j < 8; j++) {
+                            playingField[i][j] = tempPlayingField[i][j];
+                        }
                     }
                     return true;
                 }
             }
         } else {// Only allowed to move one step
             if((oldIndices[1] == newIndices[1]) && (oldIndices[0] - newIndices[0]) <= 1 && (oldIndices[0] - newIndices[0] > 0)) {
-                if (canMoveHorizontalVertical(oldIndices, newIndices, playingField)
-                        && playingField[newIndices[0]][newIndices[1]] == "xx") {
-                    performMovement(oldIndices, newIndices, playingField);
+                if (canMoveHorizontalVertical(oldIndices, newIndices, tempPlayingField)
+                        && tempPlayingField[newIndices[0]][newIndices[1]] == "xx") {
+                    performMovement(oldIndices, newIndices, tempPlayingField);
+                    if (isInCheck(color, tempPlayingField)) {
+                        return false;
+                    }
+                    for (int i = 0; i < 8; i++) {
+                        for (int j = 0; j < 8; j++) {
+                            playingField[i][j] = tempPlayingField[i][j];
+                        }
+                    }
                     return true;
                 }
             }
         }
 
         // Check if trying to take diagonally as pawn and if there is a piece there to take
-        qDebug() << (abs(oldIndices[1]-newIndices[1]) == 1);
-        qDebug() << ((oldIndices[0]-1) == newIndices[0]);
         if (abs(oldIndices[1]-newIndices[1]) == 1 && (oldIndices[0]-1) == newIndices[0]
-                && playingField[newIndices[0]][newIndices[1]][0] != color) {
-            performMovement(oldIndices, newIndices, playingField);
+                && tempPlayingField[newIndices[0]][newIndices[1]][0] != color) {
+            if (tempPlayingField[newIndices[0]][newIndices[1]] == "wu") {
+                tempPlayingField[newIndices[0]+1][newIndices[1]] = "xx";
+            }
+            performMovement(oldIndices, newIndices, tempPlayingField);
+            if (isInCheck(color, tempPlayingField)) {
+                return false;
+            }
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    playingField[i][j] = tempPlayingField[i][j];
+                }
+            }
             return true;
         }
     }

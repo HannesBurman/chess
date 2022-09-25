@@ -15,7 +15,8 @@ public:
     void notationToIndex(QString notationInText, int notationInIndex[2]);
     bool canMoveHorizontalVertical(int oldIndices[2], int newindices[2], QString playingField[8][8]);
     void performMovement(int oldIndices[2], int newindices[2], QString playingField[8][8]);
-    bool isInCheck(int oldIndices[2], int newindices[2], QChar color, QString playingField[8][8]);
+    bool isInCheck(QChar color, QString playingField[8][8]);
+    void resetUnPassant(QChar color, QString playingField[8][8]);
 
 private:
     QMap<QString, std::vector<int>> mMapNotationToIndex{{"A1",{0,0}},{"A2",{1,0}},{"A3",{2,0}},{"A4",{3,0}},{"A5",{4,0}},{"A6",{5,0}},{"A7",{6,0}},{"A8",{7,0}},
