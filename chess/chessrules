@@ -1,0 +1,49 @@
+--------------- Character rules ---------------
+
+General Rules
+    Check only moves that leads to position out of check are allowed
+    Checkmate -> No moves available to get out of "check state"
+    All pieces limited to placement of other pieces (except horse)
+    
+
+Pawn
+    Special
+    	First time moved can take to steps
+    	En passant available if opponents pawn moves two steps last round (only last round)
+    	When moved all the way over promotes to whatever piece.
+    Movement
+    	1 Step Forward, take diagonally
+    	
+Bishop
+    Special
+        -
+    Movement
+    	Move diagonally unlimited, take diagonally
+    	
+Horse
+    Special
+        Movement not hindered by other pieces placement. Can not occupy spot taked by other friendly piece. Takes by landing on opponents piece.
+    Movement
+    	Two steps Horizontal or vercital and 1 step in the direction that was not taken on the first two steps
+
+Rock
+    Special
+    	-
+    Movement
+    	Horizontal or Vertical unlimited, take in same direction  
+    	
+Queen
+    Special
+    	-
+    Movement
+    	Move Diagonally horizontally or vertically unlimited range. Take in same direction
+    	
+King
+    Special
+    	Can not move into "check state"
+    	Must be out of check state after turn is over
+    Movement
+    	Diagonally horizontally or vertically one step only. Take in same direction
+
+
+Common character rules
